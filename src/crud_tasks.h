@@ -29,3 +29,4 @@
  * @return  0 in success case and -1 in error case
  */
 int processCrudRequest(wrp_msg_t * reqMsg, wrp_msg_t **resMsg);
+int processMethodRequest(wrp_msg_t *reqMsg, wrp_msg_t **response);
