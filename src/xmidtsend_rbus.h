@@ -24,6 +24,7 @@
 #ifndef _XMIDTSEND_RBUS_H_
 #define _XMIDTSEND_RBUS_H_
 #include <rbus.h>
+#include "/home/akash/rbus/rbus/include/rbus.h"
 #include "config.h"
 #include <uuid/uuid.h>
 #ifdef __cplusplus
@@ -88,6 +89,8 @@ typedef enum
     SENT,
     DELETE
 } MSG_STATUS;
+
+#define MAX_BUF_SIZE	        256
 /*----------------------------------------------------------------------------*/
 /*                             Function Prototypes                            */
 /*----------------------------------------------------------------------------*/
@@ -118,6 +121,7 @@ void checkMaxQandOptimize(XmidtMsg *xmdMsg);
 void checkMsgExpiry(XmidtMsg *xmdMsg);
 void mapXmidtStatusToStatusMessage(int status, char **message);
 int xmidtQOptmize();
+int rbus_methodHandler(const char *methodName, cJSON *payloadJson, char **methodResponseOut);
 #ifdef __cplusplus
 }
 #endif
