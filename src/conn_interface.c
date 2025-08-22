@@ -170,6 +170,7 @@ void createSocketConnection(void (* initKeypress)())
             reset_heartBeatTimer();
         }
         else {
+            ParodusInfo("Incrementing heartBeatTimer\n");
             increment_heartBeatTimer(time_taken_ms);
         }
 
@@ -181,9 +182,11 @@ void createSocketConnection(void (* initKeypress)())
           if (0 != wait_while_interface_down ())
             break;
 
-        if(get_close_retry())
+        bool close_retry_val = get_close_retry();
+        ParodusInfo("get_close_retry value: %d\n", close_retry_val);
+        if(close_retry_val)
         {
-            ParodusInfo("close_retry is %d, hence closing the connection and retrying\n", get_close_retry());
+            ParodusInfo("close_retry is %d, hence closing the connection and retrying\n", close_retry_val);
             close_and_unref_connection(get_global_conn(), false);
             set_global_conn(NULL);
 

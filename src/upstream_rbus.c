@@ -228,7 +228,9 @@ void eventReceiveHandler( rbusHandle_t rbus_Handle, rbusEvent_t const* event, rb
 	// Close cloud conn and reconnect with the new interface as wan failover event is received
 	set_global_reconnect_reason("WAN_FAILOVER");
 	set_global_reconnect_status(true);
+	ParodusInfo("B4 set_close_retry\n");
 	set_close_retry();
+	ParodusInfo("After set_close_retry\n");
 
     }
     else {
