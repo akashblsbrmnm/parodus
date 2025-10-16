@@ -165,7 +165,7 @@ set(CLIST_SRC ${CLIST_SRC} ../src/seshat_interface_stub.c)
 endif (ENABLE_SESHAT)
 
 if (ENABLE_WEBCFGBIN)
-set(CLIST_SRC ${CLIST_SRC} ../src/upstream_rbus.c ../src/xmidtsend_rbus.c)
+set(CLIST_SRC ${CLIST_SRC} ../src/upstream_rbus.c ../src/xmidtsend_rbus.c ../src/method_handler.c)
 endif (ENABLE_WEBCFGBIN)
 
 
@@ -270,7 +270,7 @@ set(XMIDT_SRC ${XMIDT_SRC}
         ../src/partners_check.c
 )
 if (ENABLE_WEBCFGBIN)
-set(XMIDT_SRC ${XMIDT_SRC} ../src/upstream_rbus.c ../src/xmidtsend_rbus.c)
+set(XMIDT_SRC ${XMIDT_SRC} ../src/upstream_rbus.c ../src/xmidtsend_rbus.c ../src/method_handler.c)
 endif (ENABLE_WEBCFGBIN)
 
 if (ENABLE_SESHAT)
@@ -280,7 +280,7 @@ set(XMIDT_SRC ${XMIDT_SRC} ../src/seshat_interface_stub.c)
 endif (ENABLE_SESHAT)
 
 add_executable(test_crud_tasks ${XMIDT_SRC})
-target_link_libraries(test_crud_tasks -lcmocka -lcurl ${PARODUS_COMMON_LIBS} )
+target_link_libraries(test_crud_tasks -lcmocka -lcurl ${PARODUS_COMMON_LIBS} -Wl,--wrap=rbus_methodHandler)
 
 #-------------------------------------------------------------------------------
 #   test_crud_internal
@@ -358,7 +358,7 @@ else()
 set(CONIFC_SRC ${CONIFC_SRC} ../src/seshat_interface_stub.c)
 endif (ENABLE_SESHAT)
 if (ENABLE_WEBCFGBIN)
-set(CONIFC_SRC ${CONIFC_SRC} ../src/upstream_rbus.c ../src/xmidtsend_rbus.c)
+set(CONIFC_SRC ${CONIFC_SRC} ../src/upstream_rbus.c ../src/xmidtsend_rbus.c ../src/method_handler.c)
 endif (ENABLE_WEBCFGBIN)
 add_executable(test_conn_interface ${CONIFC_SRC})
 target_link_libraries (test_conn_interface -lcmocka ${PARODUS_COMMON_LIBS} -lcurl -luuid )
@@ -471,3 +471,45 @@ target_link_libraries (test_rdkconfig_generic -lcunit  -lcimplog)
 
 target_link_libraries (test_rdkconfig_generic gcov -Wl,--no-as-needed )
 endif (PARODUS_SECERT_ENABLE)
+
+#-------------------------------------------------------------------------------
+#   test_method_handler
+#-------------------------------------------------------------------------------
+# add_test(NAME test_method_handler COMMAND ${MEMORY_CHECK} ./test_method_handler)
+
+# set(METHOD_HANDLER_SRC ${METHOD_HANDLER_SRC}
+#         ../src/close_retry.c
+#         ../src/time.c
+#         ../src/config.c
+#         ../src/nopoll_helpers.c
+#         ../src/nopoll_handlers.c
+#         ../src/connection.c
+#         ../src/heartBeat.c
+#         ../src/conn_interface.c
+#         ../src/upstream.c
+#         ../src/downstream.c
+#         ../src/string_helpers.c
+#         ../src/auth_token.c
+#         ../src/ParodusInternal.c
+#         ../src/networking.c
+#         ../src/mutex.c
+#         ../src/event_handler.c
+#         ../src/thread_tasks.c
+#         ../src/crud_interface.c
+#         ../src/service_alive.c
+#         ../src/client_list.c
+#         ../src/spin_thread.c
+#         ../src/partners_check.c
+#         ../src/method_handler.c
+# )
+
+# if (ENABLE_SESHAT)
+# set(METHOD_HANDLER_SRC ${METHOD_HANDLER_SRC} ../src/seshat_interface.c)
+# else()
+# set(METHOD_HANDLER_SRC ${METHOD_HANDLER_SRC} ../src/seshat_interface_stub.c)
+# endif (ENABLE_SESHAT)
+# if (ENABLE_WEBCFGBIN)
+# set(METHOD_HANDLER_SRC ${METHOD_HANDLER_SRC} ../src/upstream_rbus.c ../src/xmidtsend_rbus.c ../src/method_handler.c)
+# endif (ENABLE_WEBCFGBIN)
+# add_executable(test_method_handler ${METHOD_HANDLER_SRC})
+# target_link_libraries (test_method_handler -lcmocka ${PARODUS_COMMON_LIBS} -lcurl -luuid -lrbus)

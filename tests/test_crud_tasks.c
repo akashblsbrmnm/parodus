@@ -277,7 +277,7 @@ int main(void)
         cmocka_unit_test(test_processCrudRequestUpdateFailure),
         cmocka_unit_test(test_processCrudRequestDelete),
         cmocka_unit_test(test_processCrudRequestDeleteFailure),
-        cmocka_unit_test(test_processCrudRequestFailure),
+        cmocka_unit_test(test_processCrudRequestFailure)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
