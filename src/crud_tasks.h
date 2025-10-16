@@ -33,3 +33,4 @@
  */
 int processCrudRequest(wrp_msg_t * reqMsg, wrp_msg_t **resMsg);
 int processMethodRequest(wrp_msg_t *reqMsg, wrp_msg_t **response);
+void setMethodResponse(wrp_msg_t **response, int statusCode, const char *message);

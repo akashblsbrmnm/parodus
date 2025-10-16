@@ -280,7 +280,7 @@ set(XMIDT_SRC ${XMIDT_SRC} ../src/seshat_interface_stub.c)
 endif (ENABLE_SESHAT)
 
 add_executable(test_crud_tasks ${XMIDT_SRC})
-target_link_libraries(test_crud_tasks -lcmocka -lcurl ${PARODUS_COMMON_LIBS} )
+target_link_libraries(test_crud_tasks -lcmocka -lcurl ${PARODUS_COMMON_LIBS} -Wl,--wrap=rbus_methodHandler)
 
 #-------------------------------------------------------------------------------
 #   test_crud_internal
