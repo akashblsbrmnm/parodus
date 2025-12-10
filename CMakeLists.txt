@@ -95,16 +95,82 @@ add_library(libtrower-base64 STATIC SHARED IMPORTED)
 add_dependencies(libtrower-base64 trower-base64)
 
 
+# OpenSSL 3.5.0 external dependency
+#-------------------------------------------------------------------------------
+set(OPENSSL_DISABLE_OPTIONS
+    no-aria         # Korean cipher
+    no-bf           # Blowfish
+    no-camellia     # Japanese cipher
+    no-cast         # CAST cipher
+    no-cms          # S/MIME
+    no-comp         # Compression
+    no-dtls         # DTLS protocol
+    no-dtls1        # DTLS 1.0
+    no-dtls1-method # DTLS 1.0 API
+    no-gost         # Russian crypto
+    no-idea         # IDEA cipher
+    no-legacy       # Legacy provider
+    no-md2          # MD2 hash
+    no-md4          # MD4 hash
+    no-mdc2         # MDC-2
+    no-rc2          # RC2 cipher
+    no-rc4          # RC4 cipher
+    no-rmd160       # RIPEMD-160
+    no-scrypt       # scrypt KDF
+    no-seed         # SEED cipher
+    no-sm2          # Chinese EC
+    no-sm3          # Chinese hash
+    no-sm4          # Chinese cipher
+    no-srtp         # SRTP
+    no-ssl3         # SSL 3.0
+    no-ssl3-method  # SSL 3.0 API
+    no-tests        # Tests
+    no-ts           # Timestamping
+    no-whirlpool    # Whirlpool hash
+    no-weak-ssl-ciphers
+    no-asm          # Disable assembly for portability
+)
+
+ExternalProject_Add(openssl
+    PREFIX ${PREFIX_DIR}/openssl
+    GIT_REPOSITORY https://github.com/openssl/openssl.git
+    GIT_TAG "openssl-3.5.4"
+    UPDATE_COMMAND ""
+    CONFIGURE_COMMAND <SOURCE_DIR>/config
+        --prefix=${INSTALL_DIR}
+        --openssldir=${INSTALL_DIR}/ssl
+        --libdir=lib
+        enable-tls1_3
+        shared
+        -Os
+        ${OPENSSL_DISABLE_OPTIONS}
+    BUILD_COMMAND make -j${CMAKE_BUILD_PARALLEL_LEVEL}
+    INSTALL_COMMAND make install_sw install_ssldirs
+    BUILD_IN_SOURCE 1
+)
+add_library(libssl STATIC SHARED IMPORTED)
+add_library(libcrypto STATIC SHARED IMPORTED)
+add_dependencies(libssl openssl)
+add_dependencies(libcrypto openssl)
+
+
 # nopoll external dependency
 #-------------------------------------------------------------------------------
 ExternalProject_Add(nopoll
+    DEPENDS openssl
     PREFIX ${PREFIX_DIR}/nopoll
     GIT_REPOSITORY https://github.com/Comcast/nopoll.git
     GIT_TAG "1.0.3"
-    CONFIGURE_COMMAND COMMAND <SOURCE_DIR>/autogen.sh --prefix=${PREFIX}
-                                                     --includedir=${INCLUDE_DIR}
-                                                     --libdir=${LIBRARY_DIR}
-                                                     ${CUSTOM_HOST}
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env
+        PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig
+        LD_LIBRARY_PATH=${INSTALL_DIR}/lib
+        LDFLAGS=-L${INSTALL_DIR}/lib\ -Wl,-rpath,${INSTALL_DIR}/lib
+        CFLAGS=-I${INCLUDE_DIR}
+        CPPFLAGS=-I${INCLUDE_DIR}
+        <SOURCE_DIR>/autogen.sh --prefix=${PREFIX}
+                               --includedir=${INCLUDE_DIR}
+                               --libdir=${LIBRARY_DIR}
+                               ${CUSTOM_HOST}
     BUILD_IN_SOURCE 1
 )
 add_library(libnopoll STATIC SHARED IMPORTED)
@@ -154,10 +220,19 @@ add_dependencies(libmsgpack msgpack)
 # curl external dependency
 #-------------------------------------------------------------------------------
 ExternalProject_Add(curl
+    DEPENDS openssl
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/_prefix/curl
     GIT_REPOSITORY https://github.com/curl/curl.git
     GIT_TAG "curl-7_63_0"
-    CMAKE_ARGS += -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DBUILD_TESTING=OFF
+    CMAKE_ARGS += -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
+                  -DBUILD_TESTING=OFF
+                  -DCURL_DISABLE_NTLM=ON
+                  -DOPENSSL_ROOT_DIR=${INSTALL_DIR}
+                  -DOPENSSL_INCLUDE_DIR=${INCLUDE_DIR}
+                  -DOPENSSL_CRYPTO_LIBRARY=${LIBRARY_DIR}/libcrypto.so
+                  -DOPENSSL_SSL_LIBRARY=${LIBRARY_DIR}/libssl.so
+                  -DCMAKE_INSTALL_RPATH=${LIBRARY_DIR}
+                  -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
 )
 add_library(libcurl STATIC SHARED IMPORTED)
 add_dependencies(libcurl curl)
